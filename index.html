@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <!-- إعدادات شاشة الآيفون لمنع التكبير ودعم الشاشة الكاملة -->
+    <!-- إعدادات شاشة الآيفون ومنع التكبير وتثبيت الشاشة لمنع القفزات عند إعادة الفتح -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- إعدادات تحويل الموقع إلى تطبيق آيفون عند إضافته للشاشة الرئيسية -->
@@ -10,15 +10,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="عجلة الحظ">
     
-    <!-- ربط أيقونة التطبيق للشاشة الرئيسية كما طلبت -->
+    <!-- الأيقونة -->
     <link rel="apple-touch-icon" href="random.png">
     <link rel="apple-touch-icon" sizes="180x180" href="random.png">
     <link rel="icon" type="image/png" href="random.png">
     <meta name="theme-color" content="#EBB305">
 
-    <title>عجلة الحظ</title>
+    <title>عجلة الحظ الاحترافية</title>
 
-    <!-- خط تجوال العربي الأنيق -->
+    <!-- خط تجوال العربي -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -31,7 +31,6 @@
             --gold: #EBB305;
             --dark-bg: #181715;
             --card-bg: #2A2825;
-            --bottom-wave: #363431;
         }
 
         * {
@@ -40,24 +39,27 @@
             user-select: none;
         }
 
+        /* تثبيت الـ html و body لمنع أي تحرك أو قفزات رأسية عند فتح وإغلاق PWA على الآيفون */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
+            position: fixed;
+            overflow: hidden;
             background-color: var(--dark-bg);
             font-family: 'Tajawal', sans-serif;
-            overflow: hidden;
             color: #ffffff;
+            touch-action: none;
+            overscroll-behavior: none;
         }
 
-        /* حاوية التطبيق الرئيسية لتناسب شاشة الآيفون بالكامل */
+        /* حاوية التطبيق الرئيسية المطلقة لمنع أي تغيير في الارتفاع */
         .app-shell {
-            position: relative;
+            position: absolute;
+            inset: 0;
             width: 100%;
-            height: 100dvh;
-            max-width: 480px;
-            margin: 0 auto;
+            height: 100%;
             background-color: var(--dark-bg);
             display: flex;
             flex-direction: column;
@@ -65,12 +67,12 @@
             overflow: hidden;
         }
 
-        /* الشكل الهندسي العلوي الأصفر المستوحى من الصورة بدقة */
+        /* الشكل الهندسي العلوي الأصفر */
         .top-yellow-shape {
             position: relative;
             width: 100%;
-            height: 33dvh;
-            min-height: 210px;
+            height: 31dvh;
+            min-height: 195px;
             z-index: 1;
             flex-shrink: 0;
         }
@@ -87,65 +89,68 @@
         .header-content {
             position: relative;
             z-index: 2;
-            padding-top: calc(env(safe-area-inset-top, 20px) + 18px);
-            padding-inline: 24px;
+            padding-top: calc(env(safe-area-inset-top, 16px) + 14px);
+            padding-inline: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
         }
 
-        /* اسم الفائز / العنوان الكبير مكان الساعة في الصورة */
         .winner-headline {
-            font-size: clamp(2rem, 8vw, 2.75rem);
+            font-size: clamp(1.8rem, 7.5vw, 2.5rem);
             font-weight: 900;
             color: #141311;
             line-height: 1.15;
             letter-spacing: -0.5px;
-            margin-top: 6px;
+            margin-top: 4px;
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .winner-sub {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            color: rgba(20, 19, 17, 0.75);
-            margin-top: 4px;
+            color: rgba(20, 19, 17, 0.78);
+            margin-top: 2px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        /* زر إدخال الأسماء في الزاوية اليسرى السفلية للشكل الأصفر (مكان GoOgLe by Steve War) */
-        .names-trigger-area {
+        /* أزرار التحكم العلوية (إدخال الأسماء + السجل) */
+        .top-actions-area {
             position: absolute;
-            bottom: 14%;
-            left: 16px;
+            bottom: 12%;
+            left: 14px;
+            right: 14px;
             z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .names-btn {
-            background: rgba(20, 19, 17, 0.12);
+        .action-chip {
+            background: rgba(20, 19, 17, 0.14);
             border: 1.5px solid rgba(20, 19, 17, 0.25);
             color: #141311;
             font-weight: 800;
-            font-size: 0.85rem;
-            padding: 8px 14px;
-            border-radius: 16px;
+            font-size: 0.82rem;
+            padding: 7px 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             cursor: pointer;
             transition: all 0.2s ease;
             backdrop-filter: blur(4px);
         }
 
-        .names-btn:active {
+        .action-chip:active {
             transform: scale(0.94);
-            background: rgba(20, 19, 17, 0.22);
+            background: rgba(20, 19, 17, 0.24);
         }
 
-        /* منطقة عجلة الحظ في المنتصف (مكان البطاقتين في الصورة) */
+        /* منطقة عجلة الحظ في المنتصف */
         .wheel-section {
             position: relative;
             z-index: 3;
@@ -154,22 +159,22 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0 20px;
-            margin-top: -18px;
+            padding: 0 16px;
+            margin-top: -10px;
         }
 
         .wheel-card {
             position: relative;
-            width: min(74vw, 310px);
-            height: min(74vw, 310px);
-            background: linear-gradient(145deg, rgba(235, 179, 5, 0.14), rgba(42, 40, 37, 0.6));
+            width: min(72vw, 290px);
+            height: min(72vw, 290px);
+            background: linear-gradient(145deg, rgba(235, 179, 5, 0.12), rgba(42, 40, 37, 0.5));
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 36px;
+            border-radius: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
-            padding: 16px;
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.4);
+            padding: 14px;
         }
 
         .wheel-wrapper {
@@ -185,38 +190,36 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.45));
         }
 
-        /* مؤشر العجلة العلوي */
         .wheel-pointer {
             position: absolute;
-            top: -10px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
-            width: 28px;
-            height: 32px;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+            width: 26px;
+            height: 30px;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
         }
 
-        /* زر التدوير في منتصف العجلة */
         .center-spin-btn {
             position: absolute;
-            width: 62px;
-            height: 62px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             background: #181715;
-            border: 4px solid var(--gold);
+            border: 3.5px solid var(--gold);
             color: var(--gold);
             font-weight: 900;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 8;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.7);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.65);
             transition: transform 0.15s ease;
         }
 
@@ -224,17 +227,17 @@
             transform: scale(0.9);
         }
 
-        /* الجزء السفلي المموج المستوحى من أسفل الصورة (بدون أيقونات زائدة) */
+        /* الجزء السفلي المموج */
         .bottom-wave-section {
             position: relative;
             width: 100%;
-            height: 19dvh;
-            min-height: 120px;
+            height: 18dvh;
+            min-height: 110px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 14px);
+            padding-bottom: calc(env(safe-area-inset-bottom, 14px) + 12px);
         }
 
         .bottom-svg {
@@ -246,26 +249,24 @@
             z-index: 0;
         }
 
-        /* كبسولة عداد الأسماء (مكان 100% في الصورة) */
         .count-pill {
             position: absolute;
-            top: 8px;
-            left: 22px;
+            top: 6px;
+            left: 20px;
             z-index: 4;
             background-color: #46433F;
             color: #FFFFFF;
             font-weight: 800;
-            font-size: 0.85rem;
-            padding: 6px 16px;
+            font-size: 0.8rem;
+            padding: 5px 14px;
             border-radius: 999px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.25);
         }
 
-        /* زر التدوير الرئيسي العريض مكان Smart Launcher Pro */
         .bottom-action-wrap {
             position: relative;
             z-index: 4;
-            padding: 0 24px;
+            padding: 0 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -276,12 +277,12 @@
             background: var(--gold);
             color: #141311;
             font-weight: 900;
-            font-size: 1.15rem;
-            padding: 14px 24px;
-            border-radius: 22px;
+            font-size: 1.1rem;
+            padding: 13px 20px;
+            border-radius: 20px;
             border: none;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(235, 179, 5, 0.25);
+            box-shadow: 0 6px 16px rgba(235, 179, 5, 0.25);
             transition: transform 0.15s ease, opacity 0.2s ease;
         }
 
@@ -294,7 +295,7 @@
             cursor: not-allowed;
         }
 
-        /* نافذة تعديل وإدخال الأسماء (Bottom Sheet بأسلوب iOS) */
+        /* النوافذ المنبثقة (Bottom Sheets) */
         .modal-backdrop {
             position: fixed;
             inset: 0;
@@ -317,13 +318,13 @@
             width: 100%;
             max-width: 480px;
             background: #22201E;
-            border-top-left-radius: 32px;
-            border-top-right-radius: 32px;
-            padding: 14px 22px calc(env(safe-area-inset-bottom, 20px) + 20px);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            padding: 14px 20px calc(env(safe-area-inset-bottom, 18px) + 18px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-            max-height: 82dvh;
+            max-height: 85dvh;
             display: flex;
             flex-direction: column;
         }
@@ -333,37 +334,37 @@
         }
 
         .sheet-handle {
-            width: 42px;
-            height: 5px;
+            width: 40px;
+            height: 4px;
             background: rgba(255, 255, 255, 0.25);
             border-radius: 99px;
-            margin: 0 auto 16px;
+            margin: 0 auto 14px;
         }
 
-        .names-list-container {
+        .list-container {
             overflow-y: auto;
-            max-height: 38dvh;
-            margin: 12px 0;
+            max-height: 36dvh;
+            margin: 10px 0;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding-left: 4px;
+            padding-left: 2px;
         }
 
-        .name-item {
+        .list-item {
             background: #2E2C29;
             padding: 10px 14px;
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .name-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             margin-left: 10px;
             flex-shrink: 0;
@@ -373,9 +374,9 @@
             background: rgba(239, 68, 68, 0.15);
             color: #F87171;
             border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -383,7 +384,6 @@
             cursor: pointer;
         }
 
-        /* تأثير الاحتفال بالفائز */
         @keyframes popWinner {
             0% { transform: scale(0.85); }
             50% { transform: scale(1.08); }
@@ -394,7 +394,6 @@
             animation: popWinner 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* طبقة المفرقعات الاحتفالية */
         #confettiCanvas {
             position: fixed;
             inset: 0;
@@ -407,14 +406,13 @@
 </head>
 <body>
 
-    <!-- كانفاس المفرقعات الاحتفالية -->
+    <!-- كانفاس المفرقعات -->
     <canvas id="confettiCanvas"></canvas>
 
     <div class="app-shell">
-        <!-- 1. الجزء العلوي الأصفر المنحني المطابق للصورة -->
+        <!-- 1. الجزء العلوي الأصفر -->
         <div class="top-yellow-shape">
             <svg class="top-svg" viewBox="0 0 400 280" preserveAspectRatio="none">
-                <!-- رسم نفس انحناءة الصورة تماماً -->
                 <path d="M 0,0 L 400,0 L 400,175 C 400,205 360,210 315,210 L 245,210 C 205,210 195,235 190,255 C 185,275 160,280 120,280 L 35,280 C 12,280 0,268 0,245 Z" fill="#EBB305"/>
             </svg>
 
@@ -425,25 +423,40 @@
                 </div>
             </div>
 
-            <!-- زر إدخال الأسماء في نفس موضع النص الجانبي بالصورة -->
-            <div class="names-trigger-area">
-                <button id="openNamesBtn" class="names-btn" aria-label="إدخال الأسماء">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <!-- أزرار التحكم السريعة العلوية -->
+            <div class="top-actions-area">
+                <button id="openNamesBtn" class="action-chip" aria-label="إدخال الأسماء">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span>إدخال الأسماء</span>
+                    <span>الأسماء</span>
                 </button>
+
+                <div class="flex gap-2">
+                    <button id="openHistoryBtn" class="action-chip" aria-label="سجل الفائزين">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>السجل</span>
+                    </button>
+                    <button id="openSettingsBtn" class="action-chip" aria-label="الإعدادات">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- 2. قسم عجلة الحظ في المنتصف -->
+        <!-- 2. عجلة الحظ -->
         <div class="wheel-section">
             <div class="wheel-card">
                 <div class="wheel-wrapper">
-                    <!-- مؤشر العجلة -->
                     <svg class="wheel-pointer" viewBox="0 0 32 36">
                         <path d="M16 36 L2 8 C0 4 4 0 8 0 L24 0 C28 0 32 4 30 8 Z" fill="#FFFFFF" stroke="#181715" stroke-width="2.5"/>
                     </svg>
@@ -455,9 +468,8 @@
             </div>
         </div>
 
-        <!-- 3. الجزء السفلي المموج المطابق للصورة بدون شريط سفلي زائد -->
+        <!-- 3. الجزء السفلي المموج -->
         <div class="bottom-wave-section">
-            <!-- كبسولة عدد الأسماء مكان 100% في الصورة -->
             <div id="countBadge" class="count-pill">3 أسماء</div>
 
             <svg class="bottom-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
@@ -470,78 +482,131 @@
         </div>
     </div>
 
-    <!-- نافذة إدارة وإدخال الأسماء (iOS Sheet) -->
+    <!-- نافذة إدارة الأسماء -->
     <div id="namesModal" class="modal-backdrop">
         <div class="ios-sheet">
             <div class="sheet-handle"></div>
             
             <div class="flex items-center justify-between mb-3">
-                <h2 class="text-xl font-extrabold text-white">قائمة الأسماء</h2>
-                <button id="closeModalBtn" class="text-sm font-bold px-3 py-1.5 rounded-xl bg-white/10 text-amber-400">
+                <h2 class="text-lg font-extrabold text-white">إدارة الأسماء</h2>
+                <button id="closeNamesModal" class="text-sm font-bold px-3 py-1.5 rounded-xl bg-white/10 text-amber-400">
                     تم
                 </button>
             </div>
 
-            <!-- حقل إضافة اسم جديد -->
             <form id="addNameForm" class="flex gap-2">
                 <input 
                     type="text" 
                     id="newNameInput" 
-                    placeholder="اكتب الاسم هنا..." 
+                    placeholder="اكتب اسم جديد..." 
                     maxlength="25"
                     autocomplete="off"
-                    class="flex-1 bg-[#181715] text-white placeholder-gray-400 px-4 py-3 rounded-2xl border border-white/10 focus:outline-none focus:border-amber-400 font-bold text-base"
+                    class="flex-1 bg-[#181715] text-white placeholder-gray-400 px-4 py-2.5 rounded-2xl border border-white/10 focus:outline-none focus:border-amber-400 font-bold text-sm"
                 >
                 <button 
                     type="submit" 
-                    class="bg-[#EBB305] text-[#141311] font-extrabold px-5 py-3 rounded-2xl active:scale-95 transition-transform"
+                    class="bg-[#EBB305] text-[#141311] font-extrabold px-4 py-2.5 rounded-2xl text-sm active:scale-95 transition-transform"
                 >
                     إضافة
                 </button>
             </form>
 
-            <!-- رسالة تنبيه داخلية بدلاً من alert -->
             <div id="inlineMessage" class="text-xs font-bold text-amber-400 mt-2 h-4 opacity-0 transition-opacity"></div>
 
-            <!-- قائمة الأسماء المضافة -->
-            <div id="namesList" class="names-list-container"></div>
+            <div id="namesList" class="list-container"></div>
 
-            <!-- زر استعادة الافتراضي -->
-            <button id="resetDefaultBtn" class="mt-2 w-full py-2.5 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10">
-                إعادة الأسماء الافتراضية
+            <div class="flex gap-2 mt-2">
+                <button id="loadPresetBtn" class="flex-1 py-2 rounded-xl bg-white/5 text-amber-400 text-xs font-bold hover:bg-white/10">
+                    قوالب جاهزة
+                </button>
+                <button id="resetDefaultBtn" class="flex-1 py-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10">
+                    الافتراضية
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة سجل الفائزين -->
+    <div id="historyModal" class="modal-backdrop">
+        <div class="ios-sheet">
+            <div class="sheet-handle"></div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-extrabold text-white">سجل الفائزين</h2>
+                <button id="closeHistoryModal" class="text-sm font-bold px-3 py-1.5 rounded-xl bg-white/10 text-amber-400">
+                    إغلاق
+                </button>
+            </div>
+            <div id="historyList" class="list-container"></div>
+            <button id="clearHistoryBtn" class="mt-2 w-full py-2.5 rounded-xl bg-red-500/15 text-red-400 text-xs font-bold">
+                مسح السجل
             </button>
         </div>
     </div>
 
-    <script>
-        /**
-         * تطبيق عجلة الحظ للآيفون
-         * مصمم ليعمل بسلاسة تامة بدون أخطاء وبألوان متناسقة مع الهوية البصرية
-         */
-        (function () {
-            // الأسماء الافتراضية المطلوبة بالضبط
-            const DEFAULT_NAMES = ['الاسم الاول', 'الاسم الثاني', 'الاسم الثالث'];
+    <!-- نافذة الإعدادات -->
+    <div id="settingsModal" class="modal-backdrop">
+        <div class="ios-sheet">
+            <div class="sheet-handle"></div>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold text-white">الإعدادات</h2>
+                <button id="closeSettingsModal" class="text-sm font-bold px-3 py-1.5 rounded-xl bg-white/10 text-amber-400">
+                    تم
+                </button>
+            </div>
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between bg-[#2E2C29] p-3.5 rounded-2xl">
+                    <span class="font-bold text-sm">الأصوات التفاعلية</span>
+                    <input type="checkbox" id="soundToggle" class="w-5 h-5 accent-amber-400 rounded cursor-pointer" checked>
+                </div>
+                <div class="flex items-center justify-between bg-[#2E2C29] p-3.5 rounded-2xl">
+                    <span class="font-bold text-sm">الاهتزاز (Haptics)</span>
+                    <input type="checkbox" id="vibrateToggle" class="w-5 h-5 accent-amber-400 rounded cursor-pointer" checked>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            // لوحة ألوان متناسقة مع الأصفر الذهبي والأسود الفحمي
+    <!-- نافذة القوالب السريعة -->
+    <div id="presetModal" class="modal-backdrop">
+        <div class="ios-sheet">
+            <div class="sheet-handle"></div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-extrabold text-white">اختر قائمة جاهزة</h2>
+                <button id="closePresetModal" class="text-sm font-bold px-3 py-1.5 rounded-xl bg-white/10 text-amber-400">
+                    إلغاء
+                </button>
+            </div>
+            <div class="flex flex-col gap-2 mt-1">
+                <button class="preset-choice bg-[#2E2C29] p-3 rounded-xl font-bold text-right hover:bg-white/10" data-preset="students">أسماء الطلاب (أحمد، محمد، فاطمة، سارة، خالد)</button>
+                <button class="preset-choice bg-[#2E2C29] p-3 rounded-xl font-bold text-right hover:bg-white/10" data-preset="yesno">نعم أو لا (نعم، لا، ربما، بالتأكيد)</button>
+                <button class="preset-choice bg-[#2E2C29] p-3 rounded-xl font-bold text-right hover:bg-white/10" data-preset="numbers">أرقام (الخيار 1، الخيار 2، الخيار 3، الخيار 4)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const DEFAULT_NAMES = ['الاسم الاول', 'الاسم الثاني', 'الاسم الثالث'];
             const SLICE_COLORS = [
-                '#EBB305', // ذهبي أساسي
-                '#2B2926', // فحمي داكن
-                '#D49B00', // ذهبي دافئ
-                '#3D3A35', // رمادي دافئ
-                '#F5C842', // أصفر مشرق
-                '#1F1E1C', // أسود ناعم
-                '#C48B00', // كهرماني
-                '#4F4B45'  // رمادي متوسط
+                '#EBB305', '#2B2926', '#D49B00', '#3D3A35', 
+                '#F5C842', '#1F1E1C', '#C48B00', '#4F4B45'
             ];
 
-            // استرجاع الأسماء المحفوظة أو استخدام الافتراضية
+            // استرجاع البيانات أو الافتراضية
             let names = [];
+            let history = [];
+            let settings = { sound: true, vibrate: true };
+
             try {
-                const saved = localStorage.getItem('iphone_wheel_names_v1');
-                names = saved ? JSON.parse(saved) : [...DEFAULT_NAMES];
-                if (!Array.isArray(names) || names.length === 0) {
-                    names = [...DEFAULT_NAMES];
-                }
+                const savedNames = localStorage.getItem('iphone_wheel_names_v2');
+                names = savedNames ? JSON.parse(savedNames) : [...DEFAULT_NAMES];
+                if (!Array.isArray(names) || names.length === 0) names = [...DEFAULT_NAMES];
+
+                const savedHistory = localStorage.getItem('iphone_wheel_history_v2');
+                history = savedHistory ? JSON.parse(savedHistory) : [];
+
+                const savedSettings = localStorage.getItem('iphone_wheel_settings_v2');
+                if (savedSettings) settings = JSON.parse(savedSettings);
             } catch (e) {
                 names = [...DEFAULT_NAMES];
             }
@@ -556,23 +621,57 @@
             const countBadge = document.getElementById('countBadge');
             const mainSpinBtn = document.getElementById('mainSpinBtn');
             const centerSpinBtn = document.getElementById('centerSpinBtn');
-            const openNamesBtn = document.getElementById('openNamesBtn');
-            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            // المودالات وأزرارها
             const namesModal = document.getElementById('namesModal');
+            const historyModal = document.getElementById('historyModal');
+            const settingsModal = document.getElementById('settingsModal');
+            const presetModal = document.getElementById('presetModal');
+
+            const openNamesBtn = document.getElementById('openNamesBtn');
+            const openHistoryBtn = document.getElementById('openHistoryBtn');
+            const openSettingsBtn = document.getElementById('openSettingsBtn');
+            const loadPresetBtn = document.getElementById('loadPresetBtn');
+
+            const closeNamesModal = document.getElementById('closeNamesModal');
+            const closeHistoryModal = document.getElementById('closeHistoryModal');
+            const closeSettingsModal = document.getElementById('closeSettingsModal');
+            const closePresetModal = document.getElementById('closePresetModal');
+
             const addNameForm = document.getElementById('addNameForm');
             const newNameInput = document.getElementById('newNameInput');
             const namesListEl = document.getElementById('namesList');
+            const historyListEl = document.getElementById('historyList');
             const inlineMessage = document.getElementById('inlineMessage');
             const resetDefaultBtn = document.getElementById('resetDefaultBtn');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const soundToggle = document.getElementById('soundToggle');
+            const vibrateToggle = document.getElementById('vibrateToggle');
 
-            // متغيرات الحركة والصوت
-            let currentAngle = 0; // بالراديان
+            soundToggle.checked = settings.sound;
+            vibrateToggle.checked = settings.vibrate;
+
+            let currentAngle = 0;
             let isSpinning = false;
             let audioCtx = null;
             let lastSliceIndex = -1;
 
-            // تهيئة الصوت التفاعلي الخفيف عند دوران العجلة (بدون روابط خارجية)
+            soundToggle.addEventListener('change', (e) => {
+                settings.sound = e.target.checked;
+                saveSettings();
+            });
+
+            vibrateToggle.addEventListener('change', (e) => {
+                settings.vibrate = e.target.checked;
+                saveSettings();
+            });
+
+            function saveSettings() {
+                try { localStorage.setItem('iphone_wheel_settings_v2', JSON.stringify(settings)); } catch(e){}
+            }
+
             function playTickSound() {
+                if (!settings.sound) return;
                 try {
                     if (!audioCtx) {
                         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -594,12 +693,11 @@
                     gain.connect(audioCtx.destination);
                     osc.start();
                     osc.stop(audioCtx.currentTime + 0.04);
-                } catch (err) {
-                    // تجاهل أي قيود صوتية بصمت
-                }
+                } catch (err) {}
             }
 
             function playWinSound() {
+                if (!settings.sound) return;
                 try {
                     if (!audioCtx) return;
                     const notes = [523.25, 659.25, 783.99, 1046.50];
@@ -618,7 +716,6 @@
                 } catch (err) {}
             }
 
-            // ضبط دقة الكانفاس لشاشات Retina في الآيفون
             function setupCanvasSize() {
                 const rect = canvas.parentElement.getBoundingClientRect();
                 const dpr = Math.min(window.devicePixelRatio || 1, 3);
@@ -627,13 +724,11 @@
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 drawWheel();
 
-                // ضبط حجم كانفاس المفرقعات
                 confettiCanvas.width = window.innerWidth * dpr;
                 confettiCanvas.height = window.innerHeight * dpr;
                 confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
 
-            // نظام المفرقعات الاحتفالية عند الفوز
             let confettiParticles = [];
             let confettiAnimId = null;
 
@@ -643,7 +738,6 @@
                 const height = window.innerHeight;
                 confettiParticles = [];
 
-                // إطلاق 110 قطعة مفرقعات من منتصف الشاشة والأعلى
                 for (let i = 0; i < 110; i++) {
                     const isBurst = i < 65;
                     confettiParticles.push({
@@ -670,13 +764,11 @@
                         const p = confettiParticles[i];
                         p.x += p.vx;
                         p.y += p.vy;
-                        p.vy += 0.28; // الجاذبية
-                        p.vx *= 0.98; // مقاومة الهواء
+                        p.vy += 0.28;
+                        p.vx *= 0.98;
                         p.rotation += p.rotationSpeed;
 
-                        if (p.y > height * 0.8) {
-                            p.opacity -= 0.025;
-                        }
+                        if (p.y > height * 0.8) p.opacity -= 0.025;
 
                         if (p.opacity > 0 && p.y < height + 30) {
                             activeCount++;
@@ -707,7 +799,6 @@
                 renderConfetti();
             }
 
-            // رسم عجلة الحظ
             function drawWheel() {
                 const rect = canvas.parentElement.getBoundingClientRect();
                 const size = rect.width;
@@ -716,7 +807,6 @@
                 const count = names.length;
 
                 ctx.clearRect(0, 0, size, size);
-
                 if (count === 0) return;
 
                 const arc = (Math.PI * 2) / count;
@@ -726,7 +816,6 @@
                     const endAngle = startAngle + arc;
                     const bgColor = SLICE_COLORS[i % SLICE_COLORS.length];
 
-                    // رسم الشريحة
                     ctx.beginPath();
                     ctx.moveTo(center, center);
                     ctx.arc(center, center, radius, startAngle, endAngle);
@@ -734,19 +823,16 @@
                     ctx.fillStyle = bgColor;
                     ctx.fill();
 
-                    // حدود أنيقة بين الشرائح
                     ctx.lineWidth = 2;
                     ctx.strokeStyle = '#181715';
                     ctx.stroke();
 
-                    // كتابة الاسم داخل الشريحة
                     ctx.save();
                     ctx.translate(center, center);
                     ctx.rotate(startAngle + arc / 2);
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
 
-                    // اختيار لون النص حسب سطوع الخلفية
                     const isLightBg = bgColor === '#EBB305' || bgColor === '#D49B00' || bgColor === '#F5C842';
                     ctx.fillStyle = isLightBg ? '#141311' : '#FFFFFF';
 
@@ -754,11 +840,10 @@
                     ctx.font = `800 ${fontSize}px Tajawal, sans-serif`;
 
                     const label = names[i].length > 14 ? names[i].slice(0, 13) + '…' : names[i];
-                    ctx.fillText(label, radius - 18, 0);
+                    ctx.fillText(label, radius - 16, 0);
                     ctx.restore();
                 }
 
-                // إطار خارجي ذهبي نحيف
                 ctx.beginPath();
                 ctx.arc(center, center, radius, 0, Math.PI * 2);
                 ctx.lineWidth = 4;
@@ -766,21 +851,18 @@
                 ctx.stroke();
             }
 
-            // حساب الفائز الحالي بناءً على المؤشر العلوي (زاوية -PI/2)
             function getSelectedIndex() {
                 const count = names.length;
                 const arc = (Math.PI * 2) / count;
-                // المؤشر في الأعلى عند 270 درجة (1.5 * PI)
                 const pointerAngle = (Math.PI * 1.5 - (currentAngle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2);
                 return Math.floor(pointerAngle / arc) % count;
             }
 
-            // تشغيل العجلة
             function spinWheel() {
                 if (isSpinning || names.length < 2) {
                     if (names.length < 2) {
                         showMessage('أضف اسمين على الأقل للتدوير');
-                        openModal();
+                        openModal(namesModal);
                     }
                     return;
                 }
@@ -792,24 +874,20 @@
                 winnerDisplay.textContent = 'جاري السحب...';
                 statusSubText.textContent = 'حظاً موفقاً للجميع';
 
-                // عدد دورات عشوائي مع زاوية توقف عشوائية
                 const extraSpins = 6 + Math.random() * 5;
                 const targetRotation = currentAngle + extraSpins * Math.PI * 2 + Math.random() * Math.PI * 2;
                 const startRotation = currentAngle;
-                const duration = 4200; // 4.2 ثواني
+                const duration = 4200;
                 const startTime = performance.now();
 
                 function animate(now) {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed / duration, 1);
-                    
-                    // منحنى تباطؤ سلس (Ease Out Quart)
                     const easeOut = 1 - Math.pow(1 - progress, 4);
                     currentAngle = startRotation + (targetRotation - startRotation) * easeOut;
 
                     drawWheel();
 
-                    // تشغيل صوت التكة عند مرور المؤشر على شريحة جديدة
                     const currentIndex = getSelectedIndex();
                     if (currentIndex !== lastSliceIndex) {
                         playTickSound();
@@ -840,16 +918,19 @@
                 playWinSound();
                 launchConfetti();
 
-                // اهتزاز خفيف إن كان مدعوماً
-                if (navigator.vibrate) {
+                if (settings.vibrate && navigator.vibrate) {
                     navigator.vibrate([40, 30, 60]);
                 }
+
+                // إضافة الفائز للسجل
+                history.unshift({ name: winnerName, time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) });
+                if (history.length > 25) history.pop();
+                saveHistory();
             }
 
-            // حفظ وتحديث الواجهة
             function saveAndRender() {
                 try {
-                    localStorage.setItem('iphone_wheel_names_v1', JSON.stringify(names));
+                    localStorage.setItem('iphone_wheel_names_v2', JSON.stringify(names));
                 } catch (e) {}
 
                 countBadge.textContent = `${names.length} ${names.length === 1 ? 'اسم' : names.length === 2 ? 'اسمان' : names.length <= 10 ? 'أسماء' : 'اسم'}`;
@@ -857,11 +938,17 @@
                 drawWheel();
             }
 
+            function saveHistory() {
+                try {
+                    localStorage.setItem('iphone_wheel_history_v2', JSON.stringify(history));
+                } catch (e) {}
+            }
+
             function renderNamesList() {
                 namesListEl.innerHTML = '';
                 names.forEach((name, index) => {
                     const item = document.createElement('div');
-                    item.className = 'name-item';
+                    item.className = 'list-item';
 
                     const rightPart = document.createElement('div');
                     rightPart.className = 'flex items-center overflow-hidden';
@@ -881,7 +968,6 @@
                     delBtn.className = 'delete-btn';
                     delBtn.type = 'button';
                     delBtn.innerHTML = '✕';
-                    delBtn.setAttribute('aria-label', 'حذف الاسم');
                     delBtn.onclick = () => {
                         if (names.length <= 2) {
                             showMessage('يجب بقاء اسمين على الأقل في العجلة');
@@ -897,33 +983,70 @@
                 });
             }
 
+            function renderHistoryList() {
+                historyListEl.innerHTML = '';
+                if (history.length === 0) {
+                    historyListEl.innerHTML = '<div class="text-center text-gray-400 py-6 font-bold text-sm">لا يوجد فائزون في السجل بعد</div>';
+                    return;
+                }
+                history.forEach((item) => {
+                    const row = document.createElement('div');
+                    row.className = 'list-item flex justify-between items-center';
+                    row.innerHTML = `<span class="font-extrabold text-amber-400">${item.name}</span><span class="text-xs text-gray-400 font-bold">${item.time}</span>`;
+                    historyListEl.appendChild(row);
+                });
+            }
+
             function showMessage(msg) {
                 inlineMessage.textContent = msg;
                 inlineMessage.style.opacity = '1';
-                setTimeout(() => {
-                    inlineMessage.style.opacity = '0';
-                }, 2500);
+                setTimeout(() => { inlineMessage.style.opacity = '0'; }, 2500);
             }
 
-            function openModal() {
+            function openModal(modal) {
                 if (isSpinning) return;
-                renderNamesList();
-                namesModal.classList.add('active');
+                if (modal === namesModal) renderNamesList();
+                if (modal === historyModal) renderHistoryList();
+                modal.classList.add('active');
             }
 
-            function closeModal() {
-                namesModal.classList.remove('active');
+            function closeModal(modal) {
+                modal.classList.remove('active');
                 newNameInput.blur();
             }
 
-            // الأحداث
+            // ربط الأحداث
             mainSpinBtn.addEventListener('click', spinWheel);
             centerSpinBtn.addEventListener('click', spinWheel);
-            openNamesBtn.addEventListener('click', openModal);
-            closeModalBtn.addEventListener('click', closeModal);
 
-            namesModal.addEventListener('click', (e) => {
-                if (e.target === namesModal) closeModal();
+            openNamesBtn.addEventListener('click', () => openModal(namesModal));
+            closeNamesModal.addEventListener('click', () => closeModal(namesModal));
+
+            openHistoryBtn.addEventListener('click', () => openModal(historyModal));
+            closeHistoryModal.addEventListener('click', () => closeModal(historyModal));
+
+            openSettingsBtn.addEventListener('click', () => openModal(settingsModal));
+            closeSettingsModal.addEventListener('click', () => closeModal(settingsModal));
+
+            loadPresetBtn.addEventListener('click', () => openModal(presetModal));
+            closePresetModal.addEventListener('click', () => closeModal(presetModal));
+
+            document.querySelectorAll('.preset-choice').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const type = e.currentTarget.getAttribute('data-preset');
+                    if (type === 'students') names = ['أحمد', 'محمد', 'فاطمة', 'سارة', 'خالد'];
+                    if (type === 'yesno') names = ['نعم', 'لا', 'ربما', 'بالتأكيد'];
+                    if (type === 'numbers') names = ['الخيار 1', 'الخيار 2', 'الخيار 3', 'الخيار 4'];
+                    saveAndRender();
+                    closeModal(presetModal);
+                    showMessage('تم تحميل القائمة بنجاح');
+                });
+            });
+
+            [namesModal, historyModal, settingsModal, presetModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal(modal);
+                });
             });
 
             addNameForm.addEventListener('submit', (e) => {
@@ -942,6 +1065,13 @@
                 statusSubText.textContent = 'اضغط للتدوير واختيار الفائز';
                 saveAndRender();
                 showMessage('تمت استعادة الأسماء الافتراضية');
+            });
+
+            clearHistoryBtn.addEventListener('click', () => {
+                history = [];
+                saveHistory();
+                renderHistoryList();
+                showMessage('تم مسح السجل');
             });
 
             window.addEventListener('resize', setupCanvasSize);
