@@ -2,433 +2,1188 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel of Fortune App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="قرعة الحظ">
+    <meta name="theme-color" content="#020617">
+    <title>قرعة الحظ — تطبيق الآيفون</title>
+
+    <!-- أيقونة التطبيق -->
+    <link rel="apple-touch-icon" href="random.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="random.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="random.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="random.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="random.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="random.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="random.png">
+    <link rel="apple-touch-icon" sizes="76x76"   href="random.png">
+    <link rel="apple-touch-icon" sizes="72x72"   href="random.png">
+    <link rel="apple-touch-icon" sizes="60x60"   href="random.png">
+    <link rel="apple-touch-icon" sizes="57x57"   href="random.png">
+    <link rel="apple-touch-icon-precomposed" href="random.png">
+    <link rel="icon" type="image/png" href="random.png">
+    <link rel="shortcut icon" type="image/png" href="random.png">
+    <link rel="manifest" id="app-manifest">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        :root {
+            --ios-bg: #0f172a;
+            --ios-card: rgba(30, 41, 59, 0.75);
+            --ios-border: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ============================================
+           منع التصغير والتكبير على الآيفون
+           ============================================ */
+        html, body {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            touch-action: pan-x pan-y; /* يمنع pinch-zoom */
+            overscroll-behavior: none; /* يمنع سلوك الزوم المرتد */
+            -webkit-touch-callout: none;
+        }
 
         * {
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation; /* يمنع double-tap zoom */
+        }
+
+        /* ============================================
+           منع الزوم التلقائي عند التركيز على الحقول
+           السبب الرئيسي: خط أصغر من 16px في iOS
+           ============================================ */
+        input, textarea, select {
+            font-size: 16px !important;
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+
+        html, body {
+            height: 100%;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-            user-select: none;
+            overflow: hidden;
         }
 
         body {
-            background: linear-gradient(135deg, #f5c815 0%, #3a3a3c 100%);
+            background-color: #020617;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
         }
 
-        /* هيكل الهاتف */
-        .phone-frame {
-            width: 380px;
-            height: 780px;
-            background-color: #1c1c1e;
-            border-radius: 55px;
-            border: 12px solid #000;
-            position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* القسم الأصفر العلوي */
-        .top-section {
-            background-color: #f5c815;
-            height: 38%;
-            border-bottom-right-radius: 70px;
-            padding: 40px 25px;
-            color: #000;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .time {
-            font-size: 65px;
-            font-weight: 700;
-            text-align: center;
-            line-height: 1;
-            letter-spacing: -2px;
-        }
-
-        .date-weather {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-top: 5px;
-        }
-
-        .brand {
-            position: absolute;
-            bottom: 25px;
-            right: 25px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        /* القسم السفلي الداكن */
-        .bottom-section {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* شاشة الخيارات الأولى */
-        .options-screen {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 10px;
-            transition: opacity 0.3s ease;
-        }
-
-        .option-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 20px;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .option-btn:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            transform: scale(1.02);
-        }
-
-        .option-btn.main-option {
-            background-color: #f5c815;
-            color: #000;
-            height: 100px;
-            font-size: 24px;
-            box-shadow: 0 10px 20px rgba(245, 200, 21, 0.2);
-        }
-
-        /* شاشة العجلة (مخفية في البداية) */
-        .wheel-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+        .iphone-wrapper {
             width: 100%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .wheel-container {
+            height: 100dvh;
+            max-width: 430px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             position: relative;
-            width: 280px;
-            height: 280px;
-            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            touch-action: pan-x pan-y;
         }
 
-        canvas {
+        @media (min-width: 500px) {
+            .iphone-wrapper {
+                height: 90vh;
+                max-height: 880px;
+                border-radius: 52px;
+                border: 10px solid #1e293b;
+                box-shadow:
+                    0 0 0 2px #334155,
+                    0 30px 60px -15px rgba(0, 0, 0, 0.8),
+                    inset 0 0 20px rgba(255,255,255,0.05);
+            }
+        }
+
+        .ios-glass {
+            background: var(--ios-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--ios-border);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            top: 44px;
+            bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.38s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95) translateY(20px);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1) translateY(0);
+        }
+
+        .perspective-1000 { perspective: 1000px; }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        .slot-window {
+            box-shadow:
+                inset 0 10px 25px rgba(0,0,0,0.8),
+                inset 0 -10px 25px rgba(0,0,0,0.8),
+                0 0 25px rgba(234, 179, 8, 0.25);
+        }
+
+        .ios-btn { touch-action: manipulation; }
+        .ios-btn:active { transform: scale(0.96); }
+
+        .wheel-pointer {
+            transform: translateX(-50%);
+            pointer-events: none;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+            z-index: 20;
+        }
+
+        #wheel-canvas {
+            display: block;
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .pointer {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #f5c815;
-            z-index: 10;
-        }
-
-        .spin-btn {
-            background-color: #f5c815;
-            color: #000;
-            border: none;
-            padding: 12px 40px;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: 700;
+            transform: rotate(0deg);
+            transform-origin: 50% 50%;
+            will-change: transform;
             cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(245, 200, 21, 0.3);
+            touch-action: manipulation;
         }
 
-        .spin-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        @keyframes nameReveal {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
+        .name-reveal { animation: nameReveal 0.4s cubic-bezier(0.2, 1.4, 0.4, 1); }
 
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 100;
-        }
+        .reel-pop { transition: transform 0.05s ease-out; }
 
-        .result-text {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 700;
-            text-align: center;
-            min-height: 35px;
-            margin-top: 10px;
-            color: #f5c815;
-        }
-
-        /* شريط الأيقونات السفلي (Dock) */
-        .dock {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .dock-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-size: 20px;
-        }
-
-        /* إخفاء واظهار العناصر */
-        .hidden {
-            display: none !important;
-        }
-
+        #cards-grid { scroll-behavior: smooth; }
     </style>
 </head>
-<body>
+<body class="text-white">
 
-    <div class="phone-frame">
-        
-        <!-- الشاشة العلوية -->
-        <div class="top-section">
-            <div class="time" id="clock">05:37</div>
-            <div class="date-weather">
-                <span>dom 14 dicembre</span>
-                <span>🌙 4°C</span>
+    <div class="iphone-wrapper">
+
+        <!-- Status Bar -->
+        <div class="h-11 px-6 flex justify-between items-center z-50 shrink-0 select-none">
+            <span id="ios-clock" class="text-xs font-bold tracking-wider">9:41</span>
+            <div class="w-28 h-6 bg-black rounded-full flex items-center justify-between px-2.5 shadow-inner border border-white/5">
+                <div class="w-2.5 h-2.5 rounded-full bg-indigo-950 border border-indigo-500/30 flex items-center justify-center">
+                    <div class="w-1 h-1 rounded-full bg-indigo-400/60"></div>
+                </div>
+                <div id="sound-wave" class="flex gap-0.5 items-center opacity-0 transition-opacity duration-300">
+                    <span class="w-0.5 h-2 bg-pink-500 rounded-full animate-pulse"></span>
+                    <span class="w-0.5 h-3 bg-indigo-400 rounded-full animate-pulse delay-75"></span>
+                    <span class="w-0.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-150"></span>
+                </div>
             </div>
-            <div class="brand">GooGLe by Steve War</div>
+            <div class="flex items-center gap-1.5 text-xs">
+                <i class="ph-fill ph-cell-signal-full"></i>
+                <i class="ph-fill ph-wifi-high"></i>
+                <i class="ph-fill ph-battery-full text-base text-emerald-400"></i>
+            </div>
         </div>
 
-        <!-- الشاشة السفلية -->
-        <div class="bottom-section">
-            
-            <!-- الشاشة الأولى: الخيارات -->
-            <div class="options-screen" id="optionsScreen">
-                <div class="option-btn main-option" onclick="startWheel()">
-                    🎡 عجلة الحظ
+        <!-- HOME -->
+        <div id="screen-home" class="screen active px-5 pt-2 pb-4 overflow-y-auto no-scrollbar">
+
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <span class="text-xs font-semibold text-indigo-400 tracking-wide">تطبيق الاختيار الذكي</span>
+                    <h1 class="text-2xl font-black bg-gradient-to-l from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent">قرعة الحظ 🎲</h1>
                 </div>
-                <div class="option-btn" onclick="startWheel()">
-                    📝 من اختيارك (1)
+                <button onclick="toggleSound()" id="sound-btn" class="w-10 h-10 rounded-full ios-glass flex items-center justify-center text-lg text-indigo-300 ios-btn">
+                    <i class="ph-fill ph-speaker-high"></i>
+                </button>
+            </div>
+
+            <div class="ios-glass rounded-3xl p-4 mb-6 shadow-lg">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                            <i class="ph-fill ph-users-three text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold">قائمة المشاركين</h2>
+                            <p class="text-[11px] text-slate-400">العدد الحالي: <span id="names-count" class="text-indigo-400 font-bold">0</span> أسماء</p>
+                        </div>
+                    </div>
+                    <button onclick="openNamesModal()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-indigo-200 transition ios-btn flex items-center gap-1">
+                        <i class="ph ph-pencil-simple"></i> تعديل الأسماء
+                    </button>
                 </div>
-                <div class="option-btn" onclick="startWheel()">
-                    📝 من اختيارك (2)
+
+                <form onsubmit="addQuickName(event)" class="flex gap-2 mb-3">
+                    <input type="text" id="quick-name-input" placeholder="أضف اسماً جديداً هنا..."
+                        class="flex-1 bg-slate-900/70 border border-white/10 rounded-2xl px-3.5 py-2 text-base text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 rounded-2xl font-bold text-sm ios-btn transition flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                        <i class="ph-bold ph-plus"></i>
+                    </button>
+                </form>
+
+                <div id="names-pills-container" class="flex gap-1.5 overflow-x-auto no-scrollbar py-1"></div>
+            </div>
+
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-base font-extrabold text-slate-200 flex items-center gap-2">
+                    <i class="ph-fill ph-sparkle text-amber-400"></i>
+                    اختر شكل العرض العشوائي:
+                </h2>
+                <span class="text-xs text-slate-400">3 أنماط</span>
+            </div>
+
+            <div class="flex flex-col gap-3.5 pb-6">
+
+                <div onclick="openMode('wheel')" class="ios-glass rounded-3xl p-4 cursor-pointer ios-btn transition hover:border-indigo-500/50 relative overflow-hidden group">
+                    <div class="absolute -left-6 -bottom-6 w-28 h-28 bg-gradient-to-tr from-indigo-600/30 to-pink-500/30 rounded-full blur-xl group-hover:scale-125 transition"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
+                            <i class="ph-fill ph-chart-pie-slice text-3xl text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <span class="px-2 py-0.5 text-[10px] font-bold bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-500/30">الخيار الأول</span>
+                            <h3 class="text-lg font-black text-white mt-0.5">عجلة الحظ الدوارة</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">لف العجلة الملونة واستمتع بصوت المؤشر حتى تقف على الفائز المحظوظ.</p>
+                        </div>
+                        <i class="ph-bold ph-caret-left text-slate-400 text-xl"></i>
+                    </div>
+                </div>
+
+                <div onclick="openMode('slots')" class="ios-glass rounded-3xl p-4 cursor-pointer ios-btn transition hover:border-amber-500/50 relative overflow-hidden group">
+                    <div class="absolute -left-6 -bottom-6 w-28 h-28 bg-gradient-to-tr from-amber-500/30 to-orange-600/30 rounded-full blur-xl group-hover:scale-125 transition"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-amber-500/30 shrink-0">
+                            <i class="ph-fill ph-diamonds-four text-3xl text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <span class="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">الخيار الثاني</span>
+                            <h3 class="text-lg font-black text-white mt-0.5">ماكينة الحظ السريعة</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">شاشة إلكترونية تقلب الأسماء بسرعة فائقة مع تشويق عالي قبل التوقف.</p>
+                        </div>
+                        <i class="ph-bold ph-caret-left text-slate-400 text-xl"></i>
+                    </div>
+                </div>
+
+                <div onclick="openMode('cards')" class="ios-glass rounded-3xl p-4 cursor-pointer ios-btn transition hover:border-emerald-500/50 relative overflow-hidden group">
+                    <div class="absolute -left-6 -bottom-6 w-28 h-28 bg-gradient-to-tr from-emerald-500/30 to-teal-500/30 rounded-full blur-xl group-hover:scale-125 transition"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0">
+                            <i class="ph-fill ph-cards text-3xl text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-500/30">الخيار الثالث</span>
+                            <h3 class="text-lg font-black text-white mt-0.5">البطاقات السحرية المخفية</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">تُخلط البطاقات أمامك وتُقلب، لتختار بنفسك بطاقة الحظ وتكشف صاحبها!</p>
+                        </div>
+                        <i class="ph-bold ph-caret-left text-slate-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WHEEL -->
+        <div id="screen-wheel" class="screen px-5 pt-2 pb-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <button onclick="goHome()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl ios-glass text-sm font-bold text-slate-200 ios-btn">
+                    <i class="ph-bold ph-arrow-right"></i> الرئيسية
+                </button>
+                <h2 class="text-lg font-black text-white">عجلة الحظ 🎡</h2>
+                <button onclick="openNamesModal()" class="w-10 h-10 rounded-2xl ios-glass flex items-center justify-center text-indigo-300 ios-btn">
+                    <i class="ph-bold ph-list-plus text-lg"></i>
+                </button>
+            </div>
+
+            <div class="relative flex-1 flex flex-col items-center justify-center py-2">
+                <div class="relative w-[min(86vw,330px)] aspect-square">
+                    <div class="absolute inset-0 rounded-full p-2 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-[0_0_55px_rgba(99,102,241,0.45)]">
+                        <div class="w-full h-full rounded-full overflow-hidden bg-slate-950">
+                            <canvas id="wheel-canvas" width="800" height="800" onclick="spinWheel()"></canvas>
+                        </div>
+                    </div>
+                    <div class="wheel-pointer absolute -top-5 left-1/2">
+                        <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+                            <path d="M21 38L6 10C4.5 7 6.8 3.5 10.2 3.5H31.8C35.2 3.5 37.5 7 36 10L21 38Z" fill="#F43F5E" stroke="white" stroke-width="3"/>
+                        </svg>
+                    </div>
+                    <button id="wheel-center-btn" onclick="spinWheel()"
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-slate-900 border-4 border-white shadow-[0_0_25px_rgba(0,0,0,0.65)] flex items-center justify-center font-black text-xs text-white active:scale-95 transition z-10">
+                        دوران
+                    </button>
                 </div>
             </div>
 
-            <!-- الشاشة الثانية: العجلة -->
-            <div class="wheel-screen" id="wheelScreen">
-                <button class="back-btn" onclick="goBack()">رجوع</button>
-                <div class="wheel-container">
-                    <div class="pointer"></div>
-                    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="pt-2">
+                <button id="spin-wheel-btn" onclick="spinWheel()" class="w-full py-4 rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 font-black text-lg text-white shadow-xl shadow-indigo-600/40 ios-btn transition flex items-center justify-center gap-2">
+                    <i class="ph-fill ph-play-circle text-2xl"></i>
+                    <span>أدر العجلة الآن!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SLOTS -->
+        <div id="screen-slots" class="screen px-5 pt-2 pb-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <button onclick="goHome()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl ios-glass text-sm font-bold text-slate-200 ios-btn">
+                    <i class="ph-bold ph-arrow-right"></i> الرئيسية
+                </button>
+                <h2 class="text-lg font-black text-amber-400">ماكينة الحظ 🎰</h2>
+                <button onclick="openNamesModal()" class="w-10 h-10 rounded-2xl ios-glass flex items-center justify-center text-amber-300 ios-btn">
+                    <i class="ph-bold ph-list-plus text-lg"></i>
+                </button>
+            </div>
+
+            <div class="my-auto">
+                <div class="ios-glass border-2 border-amber-500/40 rounded-[36px] p-6 relative shadow-2xl">
+                    <div class="flex justify-around mb-5">
+                        <span class="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24] animate-ping"></span>
+                        <span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24] animate-pulse"></span>
+                        <span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24] animate-ping"></span>
+                    </div>
+                    <div class="text-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-widest text-amber-300/80">السحب الإلكتروني السريع</span>
+                    </div>
+                    <div class="slot-window h-44 bg-slate-950 rounded-3xl border-4 border-amber-500/60 flex flex-col items-center justify-center relative overflow-hidden px-4">
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-8 bg-amber-500 rounded-l-full"></div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-8 bg-amber-500 rounded-r-full"></div>
+                        <div id="slot-prev" class="text-slate-600 font-bold text-lg blur-[1px] select-none transition-all">---</div>
+                        <div id="slot-current" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 my-2 text-center tracking-wide reel-pop">اضغط للسحب</div>
+                        <div id="slot-next" class="text-slate-600 font-bold text-lg blur-[1px] select-none transition-all">---</div>
+                    </div>
+                    <div class="mt-5 flex justify-between items-center text-xs text-slate-400 px-2">
+                        <span>السرعة: <strong id="slot-speed-label" class="text-amber-400">جاهز</strong></span>
+                        <span>احتمالية متساوية 100%</span>
+                    </div>
                 </div>
-                <div class="result-text" id="resultText">اسحب العجلة للبدء</div>
-                <button class="spin-btn" id="spinBtn" onclick="spinWheel()">أدر العجلة!</button>
             </div>
 
-            <!-- شريط الأيقونات (Dock) -->
-            <div class="dock">
-                <div class="dock-icon">📞</div>
-                <div class="dock-icon">💬</div>
-                <div class="dock-icon">🧭</div>
-                <div class="dock-icon">⚙️</div>
-                <div class="dock-icon">📷</div>
+            <div class="pt-2">
+                <button id="spin-slot-btn" onclick="startSlotMachine()" class="w-full py-4 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 font-black text-lg text-slate-950 shadow-xl shadow-amber-500/30 ios-btn transition flex items-center justify-center gap-2">
+                    <i class="ph-fill ph-lightning text-2xl"></i>
+                    <span>تشغيل ماكينة الحظ!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- CARDS -->
+        <div id="screen-cards" class="screen px-5 pt-2 pb-4 flex flex-col">
+            <div class="flex items-center justify-between shrink-0">
+                <button onclick="goHome()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl ios-glass text-sm font-bold text-slate-200 ios-btn">
+                    <i class="ph-bold ph-arrow-right"></i> الرئيسية
+                </button>
+                <h2 class="text-lg font-black text-emerald-400">البطاقات السحرية 🃏</h2>
+                <button onclick="shuffleAndDealCards()" class="px-3 py-2 rounded-2xl ios-glass flex items-center gap-1 text-xs font-bold text-emerald-300 ios-btn">
+                    <i class="ph-bold ph-shuffle text-base"></i> خلط
+                </button>
             </div>
 
+            <div class="ios-glass rounded-2xl p-3 my-3 text-center border-emerald-500/20 shrink-0">
+                <p id="cards-instruction" class="text-xs font-bold text-emerald-200">
+                    تم خلط الأسماء سرياً! المس أي بطاقة لكشف صاحب الحظ ✨
+                </p>
+            </div>
+
+            <div id="cards-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto no-scrollbar py-2 flex-1 content-start"></div>
+
+            <div class="pt-2 shrink-0">
+                <button onclick="shuffleAndDealCards()" class="w-full py-3.5 rounded-3xl bg-gradient-to-r from-emerald-500 to-teal-600 font-black text-base text-slate-950 shadow-xl shadow-emerald-500/25 ios-btn transition flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-arrows-clockwise text-xl"></i>
+                    <span>إعادة خلط وتوزيع البطاقات</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- WINNER MODAL -->
+        <div id="winner-modal" class="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-6 opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="winner-card" class="ios-glass w-full max-w-sm rounded-[36px] p-6 text-center border border-white/20 shadow-2xl transform scale-90 transition-transform duration-300 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-indigo-500/10 pointer-events-none"></div>
+                <div class="relative">
+                    <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-200 mx-auto flex items-center justify-center shadow-lg shadow-amber-400/40 mb-4 animate-bounce">
+                        <i class="ph-fill ph-crown text-4xl text-slate-900"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-indigo-300">مبروك! وقع الاختيار على</span>
+                    <h2 id="winner-name-display" class="text-3xl font-black text-white my-3 py-3 px-4 rounded-2xl bg-white/5 border border-white/10 break-words">اسم الفائز</h2>
+                    <div class="flex flex-col gap-2.5 mt-6">
+                        <button onclick="closeWinnerModal(false)" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm ios-btn transition shadow-lg shadow-indigo-600/30">
+                            متابعة السحب
+                        </button>
+                        <button onclick="closeWinnerModal(true)" class="w-full py-3 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold text-xs ios-btn transition flex items-center justify-center gap-1.5">
+                            <i class="ph-bold ph-trash"></i> استبعاد الفائز من الجولات القادمة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAMES MODAL -->
+        <div id="names-modal" class="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+            <div class="ios-glass w-full max-w-md rounded-t-[36px] sm:rounded-[36px] p-6 border-t sm:border border-white/20 shadow-2xl flex flex-col max-h-[85vh]">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                        <i class="ph-fill ph-notepad text-indigo-400"></i>
+                        تعديل قائمة الأسماء
+                    </h3>
+                    <button onclick="closeNamesModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-slate-300 mb-3">ضع كل اسم في سطر مستقل (يجب إدخال اسمين على الأقل):</p>
+                <textarea id="bulk-names-textarea" rows="8"
+                    class="w-full bg-slate-950/90 border border-white/15 rounded-2xl p-4 text-base text-white leading-relaxed focus:outline-none focus:border-indigo-500 resize-none mb-4"
+                    placeholder="الاسم الأول&#10;الاسم الثاني&#10;الاسم الثالث"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="saveBulkNames()" class="flex-1 py-3.5 rounded-2xl bg-indigo-600 text-white font-bold text-sm ios-btn shadow-lg shadow-indigo-600/30">
+                        حفظ التغييرات
+                    </button>
+                    <button onclick="resetDefaultNames()" class="px-4 py-3.5 rounded-2xl bg-white/10 text-slate-300 font-bold text-xs ios-btn">
+                        استعادة الافتراضي
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="ios-toast" class="absolute top-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-slate-900/95 border border-white/15 shadow-xl text-xs font-bold text-white flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
+            <i class="ph-fill ph-info text-indigo-400 text-base"></i>
+            <span id="ios-toast-msg">تنبيه</span>
+        </div>
+
+        <div class="h-6 flex items-center justify-center shrink-0 select-none">
+            <div class="w-32 h-1.5 bg-white/40 rounded-full"></div>
         </div>
     </div>
 
     <script>
-        // تحديث الساعة في الأعلى
+        /* ==========================================
+           منع التكبير/التصغير نهائياً
+           ========================================== */
+
+        // منع إيماءات Safari الخاصة (pinch-zoom)
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach(evt => {
+            document.addEventListener(evt, e => e.preventDefault(), { passive: false });
+        });
+
+        // منع التكبير باللمس المتعدد (أكثر من إصبع)
+        document.addEventListener('touchstart', e => {
+            if (e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+
+        // منع double-tap zoom كاحتياطي إضافي
+        let _lastTouchEnd = 0;
+        document.addEventListener('touchend', e => {
+            const now = Date.now();
+            if (now - _lastTouchEnd <= 300) {
+                // اسمح بالنقر على الأزرار والحقول
+                const tag = (e.target.tagName || '').toLowerCase();
+                if (tag !== 'button' && tag !== 'input' && tag !== 'textarea' && tag !== 'a') {
+                    e.preventDefault();
+                }
+            }
+            _lastTouchEnd = now;
+        }, { passive: false });
+
+        // إعادة ضبط المقياس إذا حاول المتصفح تغييره
+        function lockZoom() {
+            const meta = document.querySelector('meta[name="viewport"]');
+            const correct = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            if (meta && meta.getAttribute('content') !== correct) {
+                meta.setAttribute('content', correct);
+            }
+        }
+        lockZoom();
+        window.addEventListener('resize', lockZoom);
+        window.addEventListener('orientationchange', lockZoom);
+        setInterval(lockZoom, 1500);
+
+        /* ==========================================
+           GLOBAL STATE
+           ========================================== */
+        const defaultNames = ["الاسم الأول", "الاسم الثاني", "الاسم الثالث"];
+        let names = [...defaultNames];
+        let currentWinnerIndex = -1;
+        let soundEnabled = true;
+
+        let isWheelSpinning = false;
+        let isSlotSpinning = false;
+
+        const wheelColors = [
+            '#FF6B6B', '#4ECDC4', '#FFD93D', '#6C5CE7', '#00B894', '#FD79A8',
+            '#0984E3', '#E17055', '#A29BFE', '#55EFC4', '#FAB1A0', '#74B9FF'
+        ];
+
+        /* ==========================================
+           أيقونة احتياطية
+           ========================================== */
+        function generateFallbackIcon() {
+            const size = 180;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const bg = ctx.createLinearGradient(0, 0, size, size);
+            bg.addColorStop(0, '#0f172a');
+            bg.addColorStop(0.5, '#1e1b4b');
+            bg.addColorStop(1, '#312e81');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, size, size);
+
+            const cx = size / 2, cy = size / 2, r = size * 0.40;
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#6C5CE7', '#00B894', '#FD79A8', '#0984E3', '#E17055'];
+            const n = colors.length;
+            for (let i = 0; i < n; i++) {
+                const a0 = -Math.PI / 2 + i * (2 * Math.PI / n);
+                const a1 = a0 + (2 * Math.PI / n);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, a0, a1);
+                ctx.closePath();
+                ctx.fillStyle = colors[i];
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+                ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.arc(cx, cy, size * 0.11, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx, 8);
+            ctx.lineTo(cx - 14, 34);
+            ctx.lineTo(cx + 14, 34);
+            ctx.closePath();
+            ctx.fillStyle = '#F43F5E';
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function ensureAppIcon() {
+            const probe = new Image();
+            let handled = false;
+            const useFallback = () => {
+                if (handled) return;
+                handled = true;
+                const dataUrl = generateFallbackIcon();
+                document.querySelectorAll('link[rel*="icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]').forEach(el => {
+                    el.href = dataUrl;
+                });
+                try {
+                    const manifest = {
+                        name: 'قرعة الحظ',
+                        short_name: 'قرعة الحظ',
+                        start_url: '.',
+                        display: 'standalone',
+                        background_color: '#020617',
+                        theme_color: '#6C5CE7',
+                        icons: [{ src: dataUrl, sizes: '180x180', type: 'image/png', purpose: 'any' }]
+                    };
+                    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+                    document.getElementById('app-manifest').href = URL.createObjectURL(blob);
+                } catch (e) {}
+            };
+            probe.onload = () => { handled = true; };
+            probe.onerror = useFallback;
+            probe.src = 'random.png?_=' + Date.now();
+            setTimeout(useFallback, 3000);
+        }
+
+        /* ==========================================
+           AUDIO
+           ========================================== */
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AC();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playTickSound(freq = 600, duration = 0.04) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function playWinSound() {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((note, index) => {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.35);
+                    }, index * 110);
+                });
+            } catch (e) {}
+        }
+
+        function vibrate(pattern) {
+            if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = soundEnabled
+                ? '<i class="ph-fill ph-speaker-high"></i>'
+                : '<i class="ph-fill ph-speaker-slash text-rose-400"></i>';
+            showToast(soundEnabled ? "تم تفعيل المؤثرات الصوتية 🔊" : "تم كتم الصوت 🔇");
+        }
+
+        /* ==========================================
+           CLOCK + TOAST
+           ========================================== */
         function updateClock() {
             const now = new Date();
-            let hours = now.getHours().toString().padStart(2, '0');
-            let minutes = now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+            let h = now.getHours() % 12 || 12;
+            let m = now.getMinutes();
+            m = m < 10 ? '0' + m : m;
+            document.getElementById('ios-clock').textContent = `${h}:${m}`;
         }
-        setInterval(updateClock, 1000);
+        setInterval(updateClock, 10000);
         updateClock();
 
-        // بيانات العجلة (الأسماء)
-        const names = ["أحمد", "سارة", "محمد", "ليلى", "عمر", "نور", "خالد", "مريم"];
-        const colors = ["#2C2C2E", "#f5c815", "#4a4a4c", "#d4a90e", "#3a3a3c", "#e0b511", "#5a5a5c", "#c49b0b"];
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('ios-toast');
+            document.getElementById('ios-toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2400);
+        }
 
-        const canvas = document.getElementById('wheelCanvas');
-        const ctx = canvas.getContext('2d');
-        const spinBtn = document.getElementById('spinBtn');
-        const resultText = document.getElementById('resultText');
-        
-        let currentAngle = 0;
-        let isSpinning = false;
+        /* ==========================================
+           NAMES MANAGEMENT
+           ========================================== */
+        function renderNamesPills() {
+            const container = document.getElementById('names-pills-container');
+            document.getElementById('names-count').textContent = names.length;
+            container.innerHTML = '';
 
-        // رسم العجلة
+            names.forEach((name, idx) => {
+                const pill = document.createElement('div');
+                pill.className = "shrink-0 flex items-center gap-1.5 bg-white/10 border border-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-slate-200";
+                pill.innerHTML = `
+                    <span>${escapeHtml(name)}</span>
+                    <button onclick="removeSingleName(${idx})" class="w-5 h-5 rounded-full bg-white/10 hover:bg-rose-500/40 flex items-center justify-center text-[10px] text-slate-300 transition">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                `;
+                container.appendChild(pill);
+            });
+
+            if (document.getElementById('screen-wheel').classList.contains('active')) {
+                resetWheelRotation();
+                drawWheel();
+            }
+            if (document.getElementById('screen-slots').classList.contains('active')) {
+                resetSlotDisplay();
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => (
+                { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+            ));
+        }
+
+        function addQuickName(e) {
+            e.preventDefault();
+            const input = document.getElementById('quick-name-input');
+            const val = input.value.trim();
+            if (!val) return;
+            if (names.includes(val)) {
+                showToast("هذا الاسم موجود بالفعل!");
+                return;
+            }
+            names.push(val);
+            input.value = '';
+            playTickSound(700, 0.05);
+            renderNamesPills();
+        }
+
+        function removeSingleName(index) {
+            if (names.length <= 2) {
+                showToast("يجب إبقاء اسمين على الأقل في القائمة!");
+                return;
+            }
+            names.splice(index, 1);
+            playTickSound(400, 0.05);
+            renderNamesPills();
+        }
+
+        function openNamesModal() {
+            if (isWheelSpinning || isSlotSpinning) {
+                showToast("انتظر انتهاء السحب الحالي أولاً");
+                return;
+            }
+            document.getElementById('bulk-names-textarea').value = names.join('\n');
+            document.getElementById('names-modal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeNamesModal() {
+            document.getElementById('names-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function saveBulkNames() {
+            const raw = document.getElementById('bulk-names-textarea').value;
+            const cleaned = raw.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            if (cleaned.length < 2) {
+                showToast("يرجى إدخال اسمين على الأقل!");
+                return;
+            }
+            names = cleaned;
+            renderNamesPills();
+            if (document.getElementById('screen-cards').classList.contains('active')) {
+                shuffleAndDealCards();
+            }
+            closeNamesModal();
+            showToast("تم تحديث قائمة الأسماء بنجاح ✅");
+        }
+
+        function resetDefaultNames() {
+            document.getElementById('bulk-names-textarea').value = defaultNames.join('\n');
+        }
+
+        /* ==========================================
+           NAVIGATION
+           ========================================== */
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            playTickSound(520, 0.03);
+        }
+
+        function goHome() {
+            if (isWheelSpinning || isSlotSpinning) return;
+            switchScreen('screen-home');
+        }
+
+        function openMode(mode) {
+            if (names.length < 2) {
+                showToast("أضف اسمين على الأقل للبدء!");
+                return;
+            }
+            if (mode === 'wheel') {
+                switchScreen('screen-wheel');
+                resetWheelRotation();
+                drawWheel();
+            } else if (mode === 'slots') {
+                switchScreen('screen-slots');
+                resetSlotDisplay();
+            } else if (mode === 'cards') {
+                switchScreen('screen-cards');
+                shuffleAndDealCards();
+            }
+        }
+
+        /* ==========================================
+           WHEEL
+           ========================================== */
+        const WHEEL_SIZE = 800;
+        const CX = WHEEL_SIZE / 2;
+        const CY = WHEEL_SIZE / 2;
+        const WR = WHEEL_SIZE / 2 - 4;
+
+        let currentRotation = 0;
+        let wheelCtx = null;
+
+        function getWheelCanvas() {
+            return document.getElementById('wheel-canvas');
+        }
+
         function drawWheel() {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = canvas.width / 2;
-            const sliceAngle = (2 * Math.PI) / names.length;
+            const canvas = getWheelCanvas();
+            if (!canvas) return;
+            if (!wheelCtx) wheelCtx = canvas.getContext('2d');
+            const n = names.length;
+            if (!n) return;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const ctx = wheelCtx;
+            ctx.clearRect(0, 0, WHEEL_SIZE, WHEEL_SIZE);
+            const segRad = (Math.PI * 2) / n;
 
-            for (let i = 0; i < names.length; i++) {
-                const startAngle = currentAngle + i * sliceAngle;
-                const endAngle = startAngle + sliceAngle;
-
-                // رسم القطاع
+            for (let i = 0; i < n; i++) {
+                const a0 = -Math.PI / 2 + i * segRad;
+                const a1 = a0 + segRad;
                 ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.fillStyle = colors[i % colors.length];
+                ctx.moveTo(CX, CY);
+                ctx.arc(CX, CY, WR, a0, a1);
+                ctx.closePath();
+                ctx.fillStyle = wheelColors[i % wheelColors.length];
                 ctx.fill();
-                ctx.strokeStyle = "#1c1c1e";
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = 'rgba(0,0,0,0.22)';
                 ctx.stroke();
+            }
 
-                // كتابة النص
+            const arcLen = (Math.PI * 2 * WR * 0.72) / n;
+            const fontSize = Math.max(14, Math.min(36, arcLen * 0.55));
+            const maxChars = Math.max(6, Math.floor((WR * 0.72) / (fontSize * 0.55)));
+
+            for (let i = 0; i < n; i++) {
+                const mid = -Math.PI / 2 + (i + 0.5) * segRad;
+                let label = names[i];
+                if (label.length > maxChars) label = label.slice(0, maxChars - 1) + '…';
+                const norm = ((mid * 180 / Math.PI) % 360 + 360) % 360;
+                const flip = norm > 90 && norm < 270;
                 ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(startAngle + sliceAngle / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = i % 2 === 0 ? "#fff" : "#000"; // لون النص حسب لون الخلفية
-                ctx.font = "bold 24px Cairo";
-                ctx.fillText(names[i], radius - 30, 10);
+                ctx.translate(CX, CY);
+                ctx.rotate(mid);
+                if (flip) ctx.rotate(Math.PI);
+                ctx.textAlign = flip ? 'left' : 'right';
+                ctx.textBaseline = 'middle';
+                ctx.font = '700 ' + fontSize + 'px Cairo, "Segoe UI", Tahoma, Arial, sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0,0,0,0.42)';
+                ctx.shadowBlur = 6;
+                ctx.fillText(label, flip ? -(WR - 30) : (WR - 30), 0);
                 ctx.restore();
             }
 
-            // رسم الدائرة في المنتصف
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
-            ctx.fillStyle = "#1c1c1e";
-            ctx.fill();
-            ctx.strokeStyle = "#f5c815";
-            ctx.lineWidth = 5;
+            ctx.arc(CX, CY, WR, 0, Math.PI * 2);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = 'rgba(255,255,255,0.28)';
             ctx.stroke();
         }
 
-        // التنقل بين الشاشات
-        function startWheel() {
-            document.getElementById('optionsScreen').style.display = 'none';
-            const wheelScreen = document.getElementById('wheelScreen');
-            wheelScreen.style.display = 'flex';
-            setTimeout(() => wheelScreen.style.opacity = '1', 10);
-            drawWheel();
+        function resetWheelRotation() {
+            currentRotation = 0;
+            const canvas = getWheelCanvas();
+            if (canvas) {
+                canvas.style.transition = 'none';
+                canvas.style.transform = 'rotate(0deg)';
+                void canvas.offsetWidth;
+            }
         }
 
-        function goBack() {
-            const wheelScreen = document.getElementById('wheelScreen');
-            wheelScreen.style.opacity = '0';
-            setTimeout(() => {
-                wheelScreen.style.display = 'none';
-                document.getElementById('optionsScreen').style.display = 'flex';
-                resultText.innerText = "اسحب العجلة للبدء";
-                spinBtn.disabled = false;
-            }, 300);
-        }
-
-        // دوران العجلة
         function spinWheel() {
-            if (isSpinning) return;
-            isSpinning = true;
+            if (isWheelSpinning) return;
+            if (names.length < 2) { showToast("أضف اسمين على الأقل للبدء!"); return; }
+            const canvas = getWheelCanvas();
+            if (!canvas) return;
+
+            isWheelSpinning = true;
+            document.getElementById('sound-wave').classList.remove('opacity-0');
+            vibrate(20);
+
+            const spinBtn = document.getElementById('spin-wheel-btn');
+            const centerBtn = document.getElementById('wheel-center-btn');
             spinBtn.disabled = true;
-            resultText.innerText = "جاري الاختيار...";
+            centerBtn.disabled = true;
+            spinBtn.classList.add('opacity-60');
 
-            // سرعة عشوائية ومدة عشوائية
-            const spinDuration = 4000 + Math.random() * 2000; 
-            const totalRotation = (10 + Math.random() * 10) * 2 * Math.PI; // 10 إلى 20 لفة
+            const n = names.length;
+            const seg = 360 / n;
+            const winnerIdx = Math.floor(Math.random() * n);
+            const spins = 5 + Math.floor(Math.random() * 3);
+            const jitter = (Math.random() - 0.5) * seg * 0.62;
+            const cur = ((currentRotation % 360) + 360) % 360;
+            const desired = ((-(winnerIdx + 0.5) * seg + jitter) % 360 + 360) % 360;
+            const delta = (desired - cur + 360) % 360;
+            const totalDelta = spins * 360 + delta;
+            const startRotation = currentRotation;
+            const targetRotation = startRotation + totalDelta;
+            currentRotation = targetRotation;
+
+            canvas.style.transition = 'transform 4.8s cubic-bezier(0.13, 0.72, 0.09, 1)';
+            void canvas.offsetWidth;
+            canvas.style.transform = 'rotate(' + targetRotation + 'deg)';
+
             const startTime = performance.now();
-            const startAngle = currentAngle;
+            const DURATION = 4800;
+            let lastSlice = -1;
 
-            function animateSpin(time) {
-                const elapsed = time - startTime;
-                if (elapsed < spinDuration) {
-                    // تأثير التباطؤ (Ease out)
-                    const progress = 1 - Math.pow(1 - (elapsed / spinDuration), 4);
-                    currentAngle = startAngle + totalRotation * progress;
-                    drawWheel();
-                    requestAnimationFrame(animateSpin);
+            function tickLoop(now) {
+                if (!isWheelSpinning) return;
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / DURATION, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+                const curRot = startRotation + totalDelta * easeOut;
+                const pointerAngle = ((-curRot) % 360 + 360) % 360;
+                const sliceIdx = Math.floor(pointerAngle / seg) % n;
+                if (sliceIdx !== lastSlice) {
+                    playTickSound(400 + Math.random() * 220, 0.03);
+                    lastSlice = sliceIdx;
+                }
+                if (progress < 1) requestAnimationFrame(tickLoop);
+            }
+            requestAnimationFrame(tickLoop);
+
+            let finished = false;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                isWheelSpinning = false;
+                spinBtn.disabled = false;
+                centerBtn.disabled = false;
+                spinBtn.classList.remove('opacity-60');
+                document.getElementById('sound-wave').classList.add('opacity-0');
+                vibrate([25, 40, 25]);
+                setTimeout(() => showWinnerModal(winnerIdx), 150);
+            };
+            canvas.addEventListener('transitionend', finish, { once: true });
+            setTimeout(finish, DURATION + 500);
+        }
+
+        /* ==========================================
+           SLOTS
+           ========================================== */
+        function resetSlotDisplay() {
+            document.getElementById('slot-current').textContent = "اضغط للسحب";
+            document.getElementById('slot-prev').textContent = "---";
+            document.getElementById('slot-next').textContent = "---";
+            document.getElementById('slot-speed-label').textContent = "جاهز";
+        }
+
+        function startSlotMachine() {
+            if (isSlotSpinning) return;
+            if (names.length < 2) { showToast("أضف اسمين على الأقل للبدء!"); return; }
+
+            isSlotSpinning = true;
+            document.getElementById('sound-wave').classList.remove('opacity-0');
+            vibrate(20);
+
+            const btn = document.getElementById('spin-slot-btn');
+            const speedLabel = document.getElementById('slot-speed-label');
+            const prevEl = document.getElementById('slot-prev');
+            const currEl = document.getElementById('slot-current');
+            const nextEl = document.getElementById('slot-next');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-60');
+            speedLabel.textContent = "دوران فائق السرعة...";
+
+            const winnerIdx = Math.floor(Math.random() * names.length);
+            const totalSteps = 36 + Math.floor(Math.random() * 15);
+            let step = 0;
+            let currentIdx = Math.floor(Math.random() * names.length);
+
+            function doStep() {
+                const progress = step / totalSteps;
+                const isLast = step >= totalSteps - 1;
+                currentIdx = isLast ? winnerIdx : (currentIdx + 1) % names.length;
+
+                const prevIdx = (currentIdx - 1 + names.length) % names.length;
+                const nextIdx = (currentIdx + 1) % names.length;
+                prevEl.textContent = names[prevIdx];
+                currEl.textContent = names[currentIdx];
+                nextEl.textContent = names[nextIdx];
+
+                currEl.style.transform = 'scale(1.12)';
+                setTimeout(() => { currEl.style.transform = 'scale(1)'; }, 50);
+                playTickSound(350 + step * 12, 0.035);
+                step++;
+
+                if (step < totalSteps) {
+                    let delay;
+                    if (progress < 0.55) delay = 45;
+                    else if (progress < 0.72) delay = 75;
+                    else if (progress < 0.85) delay = 130;
+                    else if (progress < 0.93) delay = 220;
+                    else delay = 340;
+                    if (progress > 0.82) speedLabel.textContent = "تباطؤ قبل التوقف...";
+                    setTimeout(doStep, delay);
                 } else {
-                    // انتهى الدوران
-                    currentAngle = startAngle + totalRotation;
-                    drawWheel();
-                    isSpinning = false;
-                    spinBtn.disabled = false;
-                    determineWinner();
+                    isSlotSpinning = false;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-60');
+                    speedLabel.textContent = "توقف على الفائز!";
+                    document.getElementById('sound-wave').classList.add('opacity-0');
+                    vibrate([30, 50, 30]);
+                    setTimeout(() => showWinnerModal(winnerIdx), 380);
                 }
             }
-            requestAnimationFrame(animateSpin);
+            doStep();
         }
 
-        // تحديد الفائز
-        function determineWinner() {
-            // المؤشر في الأعلى (زاوية 270 درجة أو 1.5 باي)
-            // نحسب الزاوية الحالية ونرى أي قطاع يقع تحتها
-            const pointerAngle = 1.5 * Math.PI; // أعلى الدائرة
-            
-            // تطبيع الزاوية الحالية لتكون بين 0 و 2 باي
-            let normalizedAngle = currentAngle % (2 * Math.PI);
-            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+        /* ==========================================
+           CARDS
+           ========================================== */
+        let shuffledIndices = [];
+        let cardRevealed = false;
 
-            // حساب القطاع الذي يشير إليه المؤشر
-            // المؤشر في الأعلى، لذا نحتاج لقلب الحساب قليلاً
-            let angleToCheck = pointerAngle - normalizedAngle;
-            if (angleToCheck < 0) angleToCheck += 2 * Math.PI;
+        function shuffleAndDealCards() {
+            if (isSlotSpinning || isWheelSpinning) return;
+            cardRevealed = false;
+            document.getElementById('cards-instruction').textContent = "تم خلط الأسماء سرياً! المس أي بطاقة لكشف صاحب الحظ ✨";
 
-            const sliceAngle = (2 * Math.PI) / names.length;
-            const winningIndex = Math.floor(angleToCheck / sliceAngle);
+            shuffledIndices = names.map((_, i) => i);
+            for (let i = shuffledIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+            }
 
-            // التأكد من أن الفهرس داخل النطاق
-            const finalIndex = winningIndex % names.length;
-            
-            resultText.innerText = `الفائز هو: ${names[finalIndex]} 🎉`;
-            resultText.style.color = "#f5c815";
+            const grid = document.getElementById('cards-grid');
+            grid.innerHTML = '';
+
+            shuffledIndices.forEach((nameIndex, cardNumber) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "perspective-1000 h-28 cursor-pointer select-none";
+                wrapper.innerHTML = `
+                    <div id="mystery-card-${cardNumber}" onclick="revealCard(${cardNumber}, ${nameIndex})" class="w-full h-full relative transform-style-3d">
+                        <div class="absolute inset-0 backface-hidden rounded-2xl bg-gradient-to-br from-emerald-500/20 via-slate-800 to-teal-900/40 border-2 border-emerald-400/40 flex flex-col items-center justify-center p-2 shadow-lg hover:border-emerald-300 transition">
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 mb-1">
+                                <i class="ph-fill ph-question text-2xl"></i>
+                            </div>
+                            <span class="text-[11px] font-bold text-emerald-200">بطاقة #${cardNumber + 1}</span>
+                        </div>
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex flex-col items-center justify-center p-2 shadow-xl border-2 border-white">
+                            <i class="ph-fill ph-sparkle text-xl mb-1"></i>
+                            <span class="font-black text-base text-center break-words leading-tight">${escapeHtml(names[nameIndex])}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(wrapper);
+            });
+            playTickSound(650, 0.06);
         }
 
+        function revealCard(cardNumber, nameIndex) {
+            if (cardRevealed) return;
+            cardRevealed = true;
+            const cardInner = document.getElementById(`mystery-card-${cardNumber}`);
+            cardInner.classList.add('rotate-y-180');
+            playTickSound(800, 0.08);
+            vibrate(25);
+            document.getElementById('cards-instruction').textContent = `البطاقة المختارة كشفت عن: ${names[nameIndex]} 🎉`;
+            setTimeout(() => showWinnerModal(nameIndex), 650);
+        }
+
+        /* ==========================================
+           WINNER MODAL
+           ========================================== */
+        function showWinnerModal(winnerIdx) {
+            currentWinnerIndex = winnerIdx;
+            const display = document.getElementById('winner-name-display');
+            display.textContent = names[winnerIdx];
+            display.classList.remove('name-reveal');
+            void display.offsetWidth;
+            display.classList.add('name-reveal');
+
+            const modal = document.getElementById('winner-modal');
+            const card = document.getElementById('winner-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+
+            playWinSound();
+
+            if (typeof confetti === 'function') {
+                try {
+                    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                    setTimeout(() => confetti({ particleCount: 55, spread: 100, origin: { y: 0.5 }, startVelocity: 28 }), 220);
+                } catch (e) {}
+            }
+        }
+
+        function closeWinnerModal(removeWinner) {
+            const modal = document.getElementById('winner-modal');
+            const card = document.getElementById('winner-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+
+            if (removeWinner && currentWinnerIndex > -1) {
+                if (names.length <= 2) {
+                    showToast("لا يمكن الحذف، يجب بقاء اسمين على الأقل!");
+                } else {
+                    const removed = names.splice(currentWinnerIndex, 1)[0];
+                    showToast(`تم استبعاد "${removed}" من القائمة`);
+                    renderNamesPills();
+                    if (document.getElementById('screen-cards').classList.contains('active')) {
+                        shuffleAndDealCards();
+                    }
+                }
+            } else if (document.getElementById('screen-cards').classList.contains('active')) {
+                shuffleAndDealCards();
+            }
+            currentWinnerIndex = -1;
+        }
+
+        /* ==========================================
+           INIT
+           ========================================== */
+        window.onload = function () {
+            ensureAppIcon();
+            renderNamesPills();
+            setTimeout(() => {
+                if (document.getElementById('screen-wheel').classList.contains('active')) {
+                    drawWheel();
+                }
+            }, 50);
+        };
     </script>
 </body>
 </html>
